@@ -1,0 +1,5 @@
+ID,Ten_Vu_Khi,Loai_Dan,Cap_Do,Sprite_Hinh_Anh,Prefab_Path
+100,Hammer,100,1,Spirte/Weapon/Hammer/hammer,Prefab/Weapon/Hammer.prefab
+200,Gun,200,1,Spirte/Weapon/Gun/gun.png,Prefab/Weapon/Gun.prefab
+300,Rifle,300,1,Spirte/Weapon/Rifle/rifle.png,Prefab/Weapon/Rifle.prefab
+400,Boom,400,1,Spirte/Weapon/Bomb/01.png,Prefab/Weapon/Boom.prefab

@@ -1,0 +1,5 @@
+ID,Ten_Char,Type_Char,HP,Stamina,Move_Speed,Run_Speed,Dash_Speed,Dash_Duration,Run_Stamina_Cost,Dash_Stamini_Cost,Recovery_Stamina_rate,Experient_Point
+100,playerlevel1,1,100,100,3,6,20,0.2,10,20,1,0
+101,playerlevel2,1,100,100,3,6,20,0.2,10,20,3,100
+102,playerlevel3,1,100,100,3,6,20,0.2,10,20,6,200
+103,playerlevel4,1,100,100,3,6,20,0.2,10,20,9,300

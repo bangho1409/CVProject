@@ -1,0 +1,3 @@
+ID,Ten_Wave,Monster_ID,Total_Spawn,Spawn_Interval
+100,BatWave,200;201,10,1.5;0.5
+102,Bwave,200;202,10,1.5;0.5

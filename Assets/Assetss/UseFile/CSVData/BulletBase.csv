@@ -1,0 +1,5 @@
+ID,Ten_Dan,Sat_Thuong,Toc_Do,Radius,Cooldown,delayTime,ScaleX,ScaleY,Prefab_Path,FX_Path
+100,Melee,30,0.5,1,1,0,1,1,Prefab/Bullet/HammerAttackCollider.prefab,Prefab/Bullet/FX/BombFX.prefab
+200,GunBullet,10,20,1,0.6,0,1,1,Prefab/Bullet/GunBullet.prefab,Prefab/Bullet/FX/BombFX.prefab
+300,RifleBullet,10,60,1,0.3,0,1,1,Prefab/Bullet/RifleBullet.prefab,Prefab/Bullet/FX/BombFX.prefab
+400,Boom,100,20,1,1,0,1,1,Prefab/Bullet/BoomBullet.prefab,Prefab/Bullet/FX/BombFX.prefab
