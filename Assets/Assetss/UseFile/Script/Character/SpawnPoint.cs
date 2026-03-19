@@ -10,6 +10,7 @@ public class SpawnPoint : MonoBehaviour
     private WaveData currentWave;
     private int totalSpawned = 0;
     private int totalExpected = 0;
+    private bool isInfiniteWave = false;
 
     void Start()
     {
@@ -29,7 +30,8 @@ public class SpawnPoint : MonoBehaviour
         Debug.Log("Bắt đầu Wave: " + currentWave.waveName);
 
         totalSpawned = 0;
-        totalExpected = currentWave.monsterIds.Count * currentWave.totalSpawn;
+        isInfiniteWave = currentWave.totalSpawn == -1;
+        totalExpected = isInfiniteWave ? -1 : currentWave.monsterIds.Count * currentWave.totalSpawn;
 
         // Mỗi loại monster chạy coroutine spawn riêng (đồng thời)
         for (int i = 0; i < currentWave.monsterIds.Count; i++)
@@ -46,17 +48,30 @@ public class SpawnPoint : MonoBehaviour
 
     IEnumerator SpawnMonsterRoutine(int monsterId, int count, float interval)
     {
-        for (int i = 0; i < count; i++)
+        // count == -1 means infinite spawning
+        if (count == -1)
         {
-            SpawnMonster(monsterId);
-            totalSpawned++;
-
-            if (totalSpawned >= totalExpected)
+            while (true)
             {
-                Debug.Log("Wave hoàn thành! Tổng đã spawn: " + totalSpawned);
+                SpawnMonster(monsterId);
+                totalSpawned++;
+                yield return new WaitForSeconds(interval);
             }
+        }
+        else
+        {
+            for (int i = 0; i < count; i++)
+            {
+                SpawnMonster(monsterId);
+                totalSpawned++;
 
-            yield return new WaitForSeconds(interval);
+                if (totalSpawned >= totalExpected)
+                {
+                    Debug.Log("Wave hoàn thành! Tổng đã spawn: " + totalSpawned);
+                }
+
+                yield return new WaitForSeconds(interval);
+            }
         }
     }
 

@@ -23,8 +23,11 @@ public class PlayerCharacter : MonoBehaviour
     public float experiencePoints;
 
     // Maximum values read from data (used as clamp / for UI scaling)
+    [HideInInspector]
     public float maxHp { get; private set; }
     public float maxStamina { get; private set; }
+    public float expGainPoint { get; private set; }
+
 
     void Awake()
     {
@@ -39,6 +42,7 @@ public class PlayerCharacter : MonoBehaviour
             if (playerCharacterData != null)
             {
                 GetStat();
+                expGainPoint = 0f;
             }
             else
             {
@@ -126,18 +130,18 @@ public class PlayerCharacter : MonoBehaviour
     public bool GainExperience(float amount)
     {
         experiencePoints += amount;
-        if (playerCharacterData != null && experiencePoints >= playerCharacterData.experiencePoints)
+        CharacterData nextLevelData = CharacterDataManager.Instance.GetCharacterById(id + 1);
+        if (experiencePoints >= nextLevelData.experiencePoints)
         {
-            experiencePoints = 0;
-            CharacterData nextLevelData = CharacterDataManager.Instance.GetCharacterById(id + 1);
-            if (nextLevelData != null)
-            {
-                playerCharacterData = nextLevelData;
-                GetStat();
-                return true;
-            }
+            playerCharacterData = nextLevelData;
+            GetStat();
+            return true;
         }
-        return false;
+        else
+        {
+            return false;
+
+        }
     }
 
     void RecoverStaminaOverTime()

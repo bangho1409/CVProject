@@ -1,3 +1,4 @@
 ID,Ten_Wave,Monster_ID,Total_Spawn,Spawn_Interval
-100,BatWave,200;201,10,1.5;0.5
-102,Bwave,200;202,10,1.5;0.5
+100,CrabWave,200,10,5
+101,BatWave,201,10,7
+102,infWave,200;201,-1,3
