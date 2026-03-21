@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Globalization;
 
 public class BaseBulletDataManager : MonoBehaviour
 {
@@ -29,15 +30,15 @@ public class BaseBulletDataManager : MonoBehaviour
             string[] row = lines[i].Split(',');
             if (row.Length <= 1) continue;
             BaseBulletData data = new BaseBulletData();
-            data.id = int.Parse(row[0]);
+            data.id = int.Parse(row[0], CultureInfo.InvariantCulture);
             data.bulletName = row[1];
-            data.damage = float.Parse(row[2]);
-            data.speed = float.Parse(row[3]);
-            data.radius = float.Parse(row[4]);
-            data.cooldown = float.Parse(row[5]);
-            data.delayTime = float.Parse(row[6]);
-            data.scaleX = float.Parse(row[7]);
-            data.scaleY = float.Parse(row[8]);
+            data.damage = float.Parse(row[2], CultureInfo.InvariantCulture);
+            data.speed = float.Parse(row[3], CultureInfo.InvariantCulture);
+            data.radius = float.Parse(row[4], CultureInfo.InvariantCulture);
+            data.cooldown = float.Parse(row[5], CultureInfo.InvariantCulture);
+            data.delayTime = float.Parse(row[6], CultureInfo.InvariantCulture);
+            data.scaleX = float.Parse(row[7], CultureInfo.InvariantCulture);
+            data.scaleY = float.Parse(row[8], CultureInfo.InvariantCulture);
             data.prefabPath = row[9].Trim();
             data.fxPath = row[10].Trim();
             baseBulletData.Add(data.id, data);

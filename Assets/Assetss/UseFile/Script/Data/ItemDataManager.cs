@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using System.Globalization;
 
 [System.Serializable]
 public class ItemData
@@ -46,10 +47,10 @@ public class ItemDataManager : MonoBehaviour
             string[] row = data[i].Split(new char[] { ',' });
             if (row.Length <= 1) continue;
             ItemData item = new ItemData();
-            int.TryParse(row[0], out item.id);
+            int.TryParse(row[0], NumberStyles.Integer, CultureInfo.InvariantCulture, out item.id);
             item.itemName = row[1].Trim();
-            float.TryParse(row[2], out item.amount);
-            float.TryParse(row[3], out item.chance);
+            float.TryParse(row[2], NumberStyles.Float, CultureInfo.InvariantCulture, out item.amount);
+            float.TryParse(row[3], NumberStyles.Float, CultureInfo.InvariantCulture, out item.chance);
             item.prefabPath = row[4].Trim();
             itemList.Add(item.id, item);
         }

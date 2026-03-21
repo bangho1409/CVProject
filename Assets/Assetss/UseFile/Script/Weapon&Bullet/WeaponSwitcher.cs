@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class WeaponSwitcher : MonoBehaviour
 {
@@ -40,6 +41,22 @@ public class WeaponSwitcher : MonoBehaviour
         if (rifleAttack != null)
         {
             rifleAttack.ActivateWeapon();
+        }
+    }
+
+    /// <summary>
+    /// Called by Player Input component via "attack" action (InputAction.CallbackContext).
+    /// Handles both press (started/performed) and release (canceled) for hold-to-fire.
+    /// </summary>
+    public void OnAttack(InputAction.CallbackContext context)
+    {
+        if (context.started || context.performed)
+        {
+            OnAttackButtonDown();
+        }
+        else if (context.canceled)
+        {
+            OnAttackButtonUp();
         }
     }
 

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 public class EnemiesDataManager : MonoBehaviour
@@ -30,21 +31,21 @@ public class EnemiesDataManager : MonoBehaviour
             if (row.Length <= 1) continue;
 
             EnemyData data = new EnemyData();
-            data.id = int.Parse(row[0]);
+            data.id = int.Parse(row[0], CultureInfo.InvariantCulture);
             data.name = row[1];
-            data.type = int.Parse(row[2]);
-            data.hp = float.Parse(row[3]);
-            data.stamina = float.Parse(row[4]);
-            data.skillStaminaCost = float.Parse(row[5]);
-            data.touchAttackDamage = float.Parse(row[6]);
-            data.moveSpeed = float.Parse(row[7]);
-            data.runSpeed = float.Parse(row[8]);
-            data.dashSpeed = float.Parse(row[9]);
-            data.dashDuration = float.Parse(row[10]);
-            data.recoveryStaminaRate = float.Parse(row[11]);
-            data.skillDamage = float.Parse(row[12]);
-            data.skillCooldown = float.Parse(row[13]);
-            data.retreatDistance = float.Parse(row[14]);
+            data.type = int.Parse(row[2], CultureInfo.InvariantCulture);
+            data.hp = float.Parse(row[3], CultureInfo.InvariantCulture);
+            data.stamina = float.Parse(row[4], CultureInfo.InvariantCulture);
+            data.skillStaminaCost = float.Parse(row[5], CultureInfo.InvariantCulture);
+            data.touchAttackDamage = float.Parse(row[6], CultureInfo.InvariantCulture);
+            data.moveSpeed = float.Parse(row[7], CultureInfo.InvariantCulture);
+            data.runSpeed = float.Parse(row[8], CultureInfo.InvariantCulture);
+            data.dashSpeed = float.Parse(row[9], CultureInfo.InvariantCulture);
+            data.dashDuration = float.Parse(row[10], CultureInfo.InvariantCulture);
+            data.recoveryStaminaRate = float.Parse(row[11], CultureInfo.InvariantCulture);
+            data.skillDamage = float.Parse(row[12], CultureInfo.InvariantCulture);
+            data.skillCooldown = float.Parse(row[13], CultureInfo.InvariantCulture);
+            data.retreatDistance = float.Parse(row[14], CultureInfo.InvariantCulture);
             data.PrefabPath = row[15].Trim();
             data.itemDropPath = row[16].Trim();
 

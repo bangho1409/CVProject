@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 public class WaveDataManager : MonoBehaviour
@@ -27,24 +28,24 @@ public class WaveDataManager : MonoBehaviour
             string[] row = line.Split(',');
 
             WaveData data = new WaveData();
-            data.waveId = int.Parse(row[0]);
+            data.waveId = int.Parse(row[0], CultureInfo.InvariantCulture);
             data.waveName = row[1];
 
             // Monster_ID: "200;201" -> List<int>
             string[] ids = row[2].Split(';');
             foreach (string sId in ids)
             {
-                data.monsterIds.Add(int.Parse(sId.Trim()));
+                data.monsterIds.Add(int.Parse(sId.Trim(), CultureInfo.InvariantCulture));
             }
 
             // Total_Spawn: số lượng spawn chung cho mỗi loại monster
-            data.totalSpawn = int.Parse(row[3].Trim());
+            data.totalSpawn = int.Parse(row[3].Trim(), CultureInfo.InvariantCulture);
 
             // Spawn_Interval: "1.5;0.5" -> mỗi monster có interval riêng
             string[] intervals = row[4].Split(';');
             foreach (string sTime in intervals)
             {
-                data.spawnIntervals.Add(float.Parse(sTime.Trim()));
+                data.spawnIntervals.Add(float.Parse(sTime.Trim(), CultureInfo.InvariantCulture));
             }
 
             waveDatabase.Add(data.waveId, data);

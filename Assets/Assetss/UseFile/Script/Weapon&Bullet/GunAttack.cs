@@ -25,7 +25,7 @@ public class GunAttack : MonoBehaviour
 
     [Header("Auto-Aim Settings")]
     [Tooltip("Maximum distance to search for enemies.")]
-    [SerializeField] private float autoAimRange = 15f;
+    [SerializeField] private float autoAimRange = 7f;
 
     // Data from CSV (BulletBase: Gun = 200, Rifle = 300 for example)
     private BaseBulletData bulletData;
@@ -101,7 +101,7 @@ public class GunAttack : MonoBehaviour
     {
         if (!isActive || disabledByHammer) return;
 
-        // Update cooldown timer
+        // Update cooldown timer (only counts down AFTER bullet has been fired)
         if (!canShoot)
         {
             cooldownTimer -= Time.deltaTime;
@@ -111,7 +111,7 @@ public class GunAttack : MonoBehaviour
             }
         }
 
-        // Handle delay
+        // Handle delay (pre-fire delay before the bullet spawns)
         if (waitingForDelay)
         {
             delayTimer -= Time.deltaTime;
@@ -119,6 +119,9 @@ public class GunAttack : MonoBehaviour
             {
                 waitingForDelay = false;
                 FireBullet();
+
+                // Cooldown starts NOW, after the bullet is actually fired
+                cooldownTimer = bulletData.cooldown;
             }
         }
 
@@ -284,7 +287,8 @@ public class GunAttack : MonoBehaviour
         canShoot = false;
         waitingForDelay = true;
         delayTimer = bulletData.delayTime;
-        cooldownTimer = bulletData.cooldown;
+        // NOTE: cooldownTimer is NOT set here anymore.
+        // It will be set in Update() after FireBullet() completes.
     }
 
     private void FireBullet()

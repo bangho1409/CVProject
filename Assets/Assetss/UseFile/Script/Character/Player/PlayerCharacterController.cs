@@ -21,12 +21,15 @@ public class PlayerCharacterController : MonoBehaviour
     // Smoothing & post-dash deceleration
     [SerializeField] private float movementSmoothing = 0.08f;        // smaller = snappier
     [SerializeField] private float dashRecoveryDuration = 0.35f;    // time to fade from dash speed -> normal
-    private Vector2 velocitySmoothRef = Vector2.zero;
+    private Vector2 currentVelocity = Vector2.zero;
 
     private bool isDecelerating = false;
     private float decelTimer;
     private Vector2 decelDirection;
     private float decelStartSpeed;
+
+    // Contact filter for dash collision — configured once in Start
+    private ContactFilter2D dashContactFilter;
 
     void Start()
     {
@@ -38,6 +41,12 @@ public class PlayerCharacterController : MonoBehaviour
         {
             animator = GetComponent<Animator>();
         }
+
+        // Configure contact filter to only detect solid colliders (not triggers)
+        dashContactFilter = new ContactFilter2D();
+        dashContactFilter.useTriggers = false;
+        dashContactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
+        dashContactFilter.useLayerMask = true;
     }
 
     void Update()
@@ -102,14 +111,16 @@ public class PlayerCharacterController : MonoBehaviour
 
         if (isDashing)
         {
-            // Dash movement with collision check (unchanged)
             float dashStep = playerCharacter.dashSpeed * Time.fixedDeltaTime;
             RaycastHit2D[] results = new RaycastHit2D[1];
-            int hitCount = rb.Cast(dashDirection, new ContactFilter2D(), results, dashStep);
+
+            // Use configured filter so it respects layers and ignores triggers
+            int hitCount = rb.Cast(dashDirection, dashContactFilter, results, dashStep);
 
             if (hitCount > 0 && results[0].collider != null)
             {
-                float stopDistance = results[0].distance;
+                // Stop just before the wall (subtract small skin width to avoid overlap)
+                float stopDistance = Mathf.Max(results[0].distance - 0.01f, 0f);
                 rb.MovePosition(rb.position + dashDirection * stopDistance);
                 EndDash();
             }
@@ -153,17 +164,21 @@ public class PlayerCharacterController : MonoBehaviour
             desiredVelocity = movement * baseSpeed;
         }
 
-        // Smooth movement
-        if (rb.bodyType == RigidbodyType2D.Dynamic)
+        // Use MovePosition instead of setting velocity directly.
+        // This lets the physics engine handle collision resolution properly
+        // and prevents the player from being "pushed" through walls.
+        float smoothTime = movementSmoothing;
+        currentVelocity = Vector2.SmoothDamp(currentVelocity, desiredVelocity, ref currentVelocity, smoothTime, Mathf.Infinity, Time.fixedDeltaTime);
+
+        // Clamp to prevent overshooting on low-FPS devices
+        float maxAllowedSpeed = isDecelerating ? playerCharacter.dashSpeed : baseSpeed;
+        if (currentVelocity.magnitude > maxAllowedSpeed)
         {
-            rb.linearVelocity = Vector2.SmoothDamp(rb.linearVelocity, desiredVelocity, ref velocitySmoothRef, movementSmoothing);
+            currentVelocity = currentVelocity.normalized * maxAllowedSpeed;
         }
-        else
-        {
-            Vector2 targetPos = rb.position + desiredVelocity * Time.fixedDeltaTime;
-            Vector2 lerped = Vector2.Lerp(rb.position, targetPos, Mathf.Clamp01(1f - Mathf.Exp(-movementSmoothing * 60f * Time.fixedDeltaTime)));
-            rb.MovePosition(lerped);
-        }
+
+        Vector2 newPos = rb.position + currentVelocity * Time.fixedDeltaTime;
+        rb.MovePosition(newPos);
 
         // Consume running stamina when moving and running
         if (isRunning && movement != Vector2.zero)
@@ -197,6 +212,9 @@ public class PlayerCharacterController : MonoBehaviour
     private void EndDash()
     {
         isDashing = false;
+
+        // Reset smoothed velocity to prevent leftover momentum from pushing through walls
+        currentVelocity = Vector2.zero;
 
         isDecelerating = true;
         decelTimer = dashRecoveryDuration;

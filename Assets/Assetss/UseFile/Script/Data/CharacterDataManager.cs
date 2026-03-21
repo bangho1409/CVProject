@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 public class CharacterDataManager : MonoBehaviour
@@ -30,19 +31,19 @@ public class CharacterDataManager : MonoBehaviour
             if (row.Length <= 1) continue;
 
             CharacterData data = new CharacterData();
-            data.id = int.Parse(row[0]);
+            data.id = int.Parse(row[0], CultureInfo.InvariantCulture);
             data.name = row[1];
-            data.type = int.Parse(row[2]);
-            data.hp = float.Parse(row[3]);
-            data.stamina = float.Parse(row[4]);
-            data.moveSpeed = float.Parse(row[5]);
-            data.runSpeed = float.Parse(row[6]);
-            data.dashSpeed = float.Parse(row[7]);
-            data.dashDuration = float.Parse(row[8]);
-            data.runStaminaCost = float.Parse(row[9]);
-            data.dashStaminaCost = float.Parse(row[10]);
-            data.recoveryStaminaRate = float.Parse(row[11]);
-            data.experiencePoints = float.Parse(row[12]);
+            data.type = int.Parse(row[2], CultureInfo.InvariantCulture);
+            data.hp = float.Parse(row[3], CultureInfo.InvariantCulture);
+            data.stamina = float.Parse(row[4], CultureInfo.InvariantCulture);
+            data.moveSpeed = float.Parse(row[5], CultureInfo.InvariantCulture);
+            data.runSpeed = float.Parse(row[6], CultureInfo.InvariantCulture);
+            data.dashSpeed = float.Parse(row[7], CultureInfo.InvariantCulture);
+            data.dashDuration = float.Parse(row[8], CultureInfo.InvariantCulture);
+            data.runStaminaCost = float.Parse(row[9], CultureInfo.InvariantCulture);
+            data.dashStaminaCost = float.Parse(row[10], CultureInfo.InvariantCulture);
+            data.recoveryStaminaRate = float.Parse(row[11], CultureInfo.InvariantCulture);
+            data.experiencePoints = float.Parse(row[12], CultureInfo.InvariantCulture);
 
             characterDatabase.Add(data.id, data);
         }
