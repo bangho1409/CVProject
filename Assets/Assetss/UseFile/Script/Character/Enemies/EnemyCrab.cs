@@ -253,6 +253,14 @@ public class EnemyCrab : MonoBehaviour
         
         if (animator != null) animator.SetBool("isDeath", true);
 
+        // Spawn drop item
+        if (enemyData != null && !string.IsNullOrEmpty(enemyData.itemDropPath))
+        {
+            GameObject dropPrefab = Resources.Load<GameObject>(enemyData.itemDropPath);
+            if (dropPrefab != null)
+                Instantiate(dropPrefab, transform.position, Quaternion.identity);
+        }
+
         Destroy(gameObject, 1f);
     }
 }

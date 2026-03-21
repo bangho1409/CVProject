@@ -26,6 +26,12 @@ public class expPoint : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (collision.CompareTag("WallMap"))
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         if (!collision.CompareTag("Player"))
             return;
 

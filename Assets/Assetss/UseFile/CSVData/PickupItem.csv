@@ -1,4 +1,4 @@
-ID,Ten_Vat_Pham,Amount,Prefab_Path
-100,Hp,20,Prefab/Item/hpPotion
-200,Stamina,20,Prefab/Item/staminaPotion
-300,Exp,100,Prefab/Item/point
+ID,Ten_Vat_Pham,Amount,Chance,Prefab_Path
+100,Hp,20,0.1,Prefab/Item/hpPotion
+200,Stamina,20,0.2,Prefab/Item/staminaPotion
+300,Exp,1,1,Prefab/Item/point

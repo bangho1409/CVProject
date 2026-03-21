@@ -7,6 +7,7 @@ public class ItemData
     public int id;
     public string itemName;
     public float amount;
+    public float chance;
     public string prefabPath;
 }
 
@@ -48,7 +49,8 @@ public class ItemDataManager : MonoBehaviour
             int.TryParse(row[0], out item.id);
             item.itemName = row[1].Trim();
             float.TryParse(row[2], out item.amount);
-            item.prefabPath = row[3].Trim();
+            float.TryParse(row[3], out item.chance);
+            item.prefabPath = row[4].Trim();
             itemList.Add(item.id, item);
         }
 

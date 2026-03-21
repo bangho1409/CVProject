@@ -14,19 +14,27 @@ public class hpPotion : MonoBehaviour
     private void Start()
     {
         itemData = ItemDataManager.Instance.GetItemById(id);
-        if (itemData != null) {
+        if (itemData != null)
+        {
             itemName = itemData.itemName;
             amount = itemData.amount;
-        } else {
+        }
+        else
+        {
             Debug.LogWarning($"{itemName}: Item ID {id} not found in ItemDataManager.");
         }
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-            if (!collision.CompareTag("Player"))
-                return;
-    
-            player = collision.gameObject;
+        if (collision.CompareTag("WallMap"))
+        {
+            Destroy(gameObject);
+            return;
+        }
+        if (!collision.CompareTag("Player"))
+            return;
+
+        player = collision.gameObject;
         if (player != null)
         {
             PlayerCharacter = player.GetComponent<PlayerCharacter>();

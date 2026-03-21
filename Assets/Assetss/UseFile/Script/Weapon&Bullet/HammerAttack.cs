@@ -48,20 +48,8 @@ public class HammerAttack : MonoBehaviour
                 {
                     Debug.LogWarning($"HammerAttack: Could not load prefab at '{path}'.");
                 }
+            }
 
-                Debug.Log($"HammerAttack: Loaded Melee data → Damage={hammerData.damage}, " +
-                          $"Speed={hammerData.speed}, Cooldown={hammerData.cooldown}, " +
-                          $"DelayTime={hammerData.delayTime}, Radius={hammerData.radius}, " +
-                          $"Scale=({hammerData.scaleX},{hammerData.scaleY})");
-            }
-            else
-            {
-                Debug.LogWarning("HammerAttack: No BaseBulletData found for id 100 (Melee).");
-            }
-        }
-        else
-        {
-            Debug.LogWarning("HammerAttack: BaseBulletDataManager.Instance is null.");
         }
 
         // Initially disable the hammer visual

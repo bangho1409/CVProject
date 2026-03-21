@@ -46,6 +46,7 @@ public class EnemiesDataManager : MonoBehaviour
             data.skillCooldown = float.Parse(row[13]);
             data.retreatDistance = float.Parse(row[14]);
             data.PrefabPath = row[15].Trim();
+            data.itemDropPath = row[16].Trim();
 
             enemyDatabase.Add(data.id, data);
         }
@@ -83,5 +84,6 @@ public class EnemyData
     public float skillCooldown;
     public float retreatDistance;
     public string PrefabPath;
+    public string itemDropPath;
 }
 

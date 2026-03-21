@@ -1,5 +1,3 @@
-ID,Ten_Char,Type_Char,HP,Stamina,Skill_Stamina_Cost,Touch_Attack_Damage,Move_Speed,Run_Speed,Dash_Speed,Dash_Duration,Recovery_Stamina_rate,Skill_Attack_Damage,Skill_Attack_Cooldown,Retreat_Distance,Prefab_Path
-200,crab,2,10,100,10,3,2,0,0,0.2,2,5,4,1,Prefab/Enemy/Crab.prefab
-201,bat,2,20,100,15,3,10,0,30,0.2,3,10,4,2,Prefab/Enemy/Bat.prefab
-202,slime,2,30,100,50,10,10,0,0,0.2,20,0,0,0,Prefab/Enemy/Bat.prefab
-203,golem,2,40,100,50,20,10,0,0,0.2,20,0,0,0,Prefab/Enemy/Bat.prefab
+ID,Ten_Char,Type_Char,HP,Stamina,Skill_Stamina_Cost,Touch_Attack_Damage,Move_Speed,Run_Speed,Dash_Speed,Dash_Duration,Recovery_Stamina_rate,Skill_Attack_Damage,Skill_Attack_Cooldown,Retreat_Distance,Prefab_Path,ItemDrop_Path
+200,crab,2,10,100,10,3,2,0,0,0.2,2,5,4,1,Prefab/Enemy/Crab.prefab,Prefab/Item/DropItem
+201,bat,2,20,100,15,3,10,0,30,0.2,3,10,4,2,Prefab/Enemy/Bat.prefab,Prefab/Item/DropItem

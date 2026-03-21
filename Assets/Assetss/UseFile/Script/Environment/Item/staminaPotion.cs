@@ -26,6 +26,11 @@ public class staminaPotion : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (collision.CompareTag("WallMap"))
+        {
+            Destroy(gameObject);
+            return;
+        }
         if (!collision.CompareTag("Player"))
             return;
 
@@ -35,7 +40,7 @@ public class staminaPotion : MonoBehaviour
             PlayerCharacter = player.GetComponent<PlayerCharacter>();
             if (PlayerCharacter != null)
             {
-                PlayerCharacter.RecoverStamina(amount); 
+                PlayerCharacter.RecoverStamina(amount);
                 if (PlayerCharacter.stamina > PlayerCharacter.maxStamina)
                 {
                     PlayerCharacter.stamina = PlayerCharacter.maxStamina;

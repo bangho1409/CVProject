@@ -320,6 +320,14 @@ public class EnemyBat : MonoBehaviour
         var col = GetComponent<Collider2D>();
         if (col != null) col.enabled = false;
 
+        // Spawn drop item
+        if (enemyData != null && !string.IsNullOrEmpty(enemyData.itemDropPath))
+        {
+            GameObject dropPrefab = Resources.Load<GameObject>(enemyData.itemDropPath);
+            if (dropPrefab != null)
+                Instantiate(dropPrefab, transform.position, Quaternion.identity);
+        }
+
         Destroy(gameObject, 1f);
     }
 }

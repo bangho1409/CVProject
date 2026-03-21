@@ -28,6 +28,7 @@ public class PlayerCharacter : MonoBehaviour
     public float maxStamina { get; private set; }
     public float expGainPoint { get; private set; }
 
+    public bool isDead { get; private set; }
 
     void Awake()
     {
@@ -58,6 +59,8 @@ public class PlayerCharacter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (isDead) return;
+
         if (playerCharacterData != null)
         {
             RecoverStaminaOverTime();
@@ -85,13 +88,47 @@ public class PlayerCharacter : MonoBehaviour
 
     public bool TakeDamage(float damage)
     {
+        if (isDead) return true;
+
         hp -= damage;
         if (hp <= 0)
         {
             hp = 0;
+            Die();
             return true;
         }
         return false;
+    }
+
+    public void Die()
+    {
+        if (isDead) return;
+
+        isDead = true;
+
+        // Disable movement controller
+        var controller = GetComponent<PlayerCharacterController>();
+        if (controller != null)
+        {
+            controller.enabled = false;
+        }
+
+        // Stop any remaining velocity
+        var rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        // Play Dead animation
+        var animator = GetComponent<Animator>();
+        if (animator != null)
+        {
+            animator.SetBool("isMoving", false);
+            animator.SetBool("isRunning", false);
+            animator.SetBool("isDashing", false);
+            animator.SetBool("isDead", true);
+        }
     }
 
     public bool Heal(float amount)
@@ -131,16 +168,24 @@ public class PlayerCharacter : MonoBehaviour
     {
         experiencePoints += amount;
         CharacterData nextLevelData = CharacterDataManager.Instance.GetCharacterById(id + 1);
-        if (experiencePoints >= nextLevelData.experiencePoints)
+        if (nextLevelData != null)
         {
-            playerCharacterData = nextLevelData;
-            GetStat();
-            return true;
+            if (experiencePoints >= nextLevelData.experiencePoints)
+            {
+                playerCharacterData = nextLevelData;
+                GetStat();
+                return true;
+            }
+            else
+            {
+                return false;
+
+            }
         }
         else
         {
+            Debug.LogWarning($"{name}: No next level character data found for id {id + 1}.");
             return false;
-
         }
     }
 

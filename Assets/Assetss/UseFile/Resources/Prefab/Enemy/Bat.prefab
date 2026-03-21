@@ -207,7 +207,6 @@ MonoBehaviour:
   retreatDistance: 0
   pauseBeforeAttack: 0.6
   dashDistanceMultiplier: 3
-  debugMovement: 0
   hoverAmplitude: 0.3
   hoverFrequency: 2
   touchDamageInterval: 0.5
