@@ -22,14 +22,17 @@ public class WeaponDataManager : MonoBehaviour
 
     private Dictionary<int, WeaponData> weaponList = new Dictionary<int, WeaponData>();
 
-
-    void Start()
+    void Awake()
     {
+        if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
+        else { Destroy(gameObject); return; }
+
         if (csvFile != null)
         {
             ReadCSV();
         }
     }
+
     void ReadCSV()
     {
         string[] data = csvFile.text.Split(new char[] { '\n' });

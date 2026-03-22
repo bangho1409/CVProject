@@ -12,7 +12,8 @@ public class BaseBulletDataManager : MonoBehaviour
     // Awake is called when the script instance is being loaded
     void Awake()
     {
-        Instance = this;
+        if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
+        else { Destroy(gameObject); return; }
 
         // Read CSV immediately in Awake so data is available
         // before any other script's Start() calls GetBulletById()

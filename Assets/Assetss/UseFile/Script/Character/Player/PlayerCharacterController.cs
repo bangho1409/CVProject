@@ -201,6 +201,9 @@ public class PlayerCharacterController : MonoBehaviour
 
         playerCharacter.ConsumeStamina(playerCharacter.dashStaminaCost);
 
+        // Invincible during dash
+        playerCharacter.SetInvincible(true);
+
         if (animator != null)
         {
             animator.SetBool("isRunning", false);
@@ -212,6 +215,12 @@ public class PlayerCharacterController : MonoBehaviour
     private void EndDash()
     {
         isDashing = false;
+
+        // Vulnerable again after dash
+        if (playerCharacter != null)
+        {
+            playerCharacter.SetInvincible(false);
+        }
 
         // Reset smoothed velocity to prevent leftover momentum from pushing through walls
         currentVelocity = Vector2.zero;

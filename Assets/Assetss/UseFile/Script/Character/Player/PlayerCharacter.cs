@@ -30,6 +30,9 @@ public class PlayerCharacter : MonoBehaviour
 
     public bool isDead { get; private set; }
 
+    // Invincible during dash
+    public bool isInvincible { get; private set; }
+
     void Awake()
     {
         Instance = this;
@@ -86,9 +89,15 @@ public class PlayerCharacter : MonoBehaviour
         experiencePoints = playerCharacterData.experiencePoints;
     }
 
+    public void SetInvincible(bool value)
+    {
+        isInvincible = value;
+    }
+
     public bool TakeDamage(float damage)
     {
         if (isDead) return true;
+        if (isInvincible) return false;
 
         hp -= damage;
         if (hp <= 0)

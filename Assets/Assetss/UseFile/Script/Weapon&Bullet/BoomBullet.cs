@@ -27,7 +27,10 @@ public class BoomBullet : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("WallMap") || collision.CompareTag("Enemy"))
+        // Check by tag OR by layer to handle enemies whose root object is Untagged
+        if (collision.CompareTag("WallMap")
+            || collision.CompareTag("Enemy")
+            || ((enemyLayer.value & (1 << collision.gameObject.layer)) != 0))
         {
             Explode();
         }
@@ -39,13 +42,14 @@ public class BoomBullet : MonoBehaviour
 
         foreach (Collider2D enemyCollider in hitEnemies)
         {
-            EnemyBat enemy = enemyCollider.GetComponent<EnemyBat>();
+            // Search on the collider's own object first, then walk up to root
+            EnemyBat enemy = enemyCollider.GetComponentInParent<EnemyBat>();
+            EnemyCrab enemyCrab = enemyCollider.GetComponentInParent<EnemyCrab>();
             if (enemy != null)
             {
                 enemy.TakeDamage(damage);
             }
-            EnemyCrab enemyCrab = enemyCollider.GetComponent<EnemyCrab>();
-            if (enemyCrab != null)
+            else if (enemyCrab != null)
             {
                 enemyCrab.TakeDamage(damage);
             }

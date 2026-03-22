@@ -19,14 +19,17 @@ public class OptionUI : MonoBehaviour
     [SerializeField] private Button soundButton;
 
     [Header("Sound Toggle Icons")]
-    [SerializeField] private GameObject soundOn;          // On icon inside SoundButton
-    [SerializeField] private GameObject soundOff;         // Off icon inside SoundButton
+    [SerializeField] private GameObject soundOn;          // On image inside SoundButton
+    [SerializeField] private GameObject soundOff;         // Off image inside SoundButton
 
     private bool isPaused = false;
     private bool isSoundOn = true;
 
     void Start()
     {
+        // Safety: always ensure timeScale is 1 when this scene starts
+        Time.timeScale = 1f;
+
         // Ensure panels are hidden at start
         optionPanel.SetActive(false);
         settingPanel.SetActive(false);
@@ -92,7 +95,7 @@ public class OptionUI : MonoBehaviour
         optionPanel.SetActive(true);
     }
 
-    public void ToggleSound()
+    void ToggleSound()
     {
         isSoundOn = !isSoundOn;
         AudioListener.pause = !isSoundOn;

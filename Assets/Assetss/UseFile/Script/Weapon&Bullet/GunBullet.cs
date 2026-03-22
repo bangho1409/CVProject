@@ -3,32 +3,37 @@ using UnityEngine;
 public class GunBullet : MonoBehaviour
 {
     [HideInInspector] public float damage;
+
+    private int enemyLayer;
+
+    private void Start()
+    {
+        enemyLayer = LayerMask.NameToLayer("Enemy");
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("WallMap") || collision.gameObject.layer == LayerMask.NameToLayer("Map"))
         {
-            // Destroy bullet on hit
             Destroy(gameObject);
             return;
         }
 
-        if (!collision.CompareTag("Enemy"))
+        // Check by tag OR by layer to handle enemies whose root is Untagged
+        if (!collision.CompareTag("Enemy") && collision.gameObject.layer != enemyLayer)
             return;
 
-        // Deal damage to enemy but do NOT destroy bullet
-        // Bullet continues flying until it hits WallMap (handled by BulletMover)
-        EnemyBat enemy = collision.GetComponent<EnemyBat>();
+        EnemyBat enemy = collision.GetComponentInParent<EnemyBat>();
+        EnemyCrab enemyCrab = collision.GetComponentInParent<EnemyCrab>();
         if (enemy != null)
         {
             enemy.TakeDamage(damage);
         }
-        EnemyCrab enemyCrab = collision.GetComponent<EnemyCrab>();
-        if (enemyCrab != null)
+        else if (enemyCrab != null)
         {
             enemyCrab.TakeDamage(damage);
         }
 
-        // Destroy bullet on hit
-        //Destroy(gameObject);
+        Destroy(gameObject);
     }
 }

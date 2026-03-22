@@ -61,6 +61,8 @@ public class EnemyBat : MonoBehaviour
     private float skillCooldownEndTime = -Mathf.Infinity;
     private float hoverTimer;
 
+    public bool isDead { get; private set; }
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
@@ -305,8 +307,10 @@ public class EnemyBat : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
+        if (isDead) return;
+
         hp -= damage;
-        animator.SetTrigger("getHit");
+        if (animator != null) animator.SetTrigger("getHit");
 
         if (hp <= 0)
             Die();
@@ -314,11 +318,34 @@ public class EnemyBat : MonoBehaviour
 
     private void Die()
     {
-        if (animator != null) animator.SetTrigger("death");
+        if (isDead) return;
+        isDead = true;
+
         if (rb != null) rb.linearVelocity = Vector2.zero;
 
-        var col = GetComponent<Collider2D>();
-        if (col != null) col.enabled = false;
+        // Disable ALL colliders (root + children)
+        Collider2D[] allColliders = GetComponentsInChildren<Collider2D>();
+        foreach (var col in allColliders)
+        {
+            col.enabled = false;
+        }
+
+        // Change tag so auto-aim no longer targets this enemy
+        gameObject.tag = "Untagged";
+        foreach (Transform child in transform)
+        {
+            child.gameObject.tag = "Untagged";
+        }
+
+        // Change layer so OverlapCircle/layer checks skip this enemy
+        int defaultLayer = LayerMask.NameToLayer("Default");
+        gameObject.layer = defaultLayer;
+        foreach (Transform child in transform)
+        {
+            child.gameObject.layer = defaultLayer;
+        }
+
+        if (animator != null) animator.SetTrigger("death");
 
         // Spawn drop item
         if (enemyData != null && !string.IsNullOrEmpty(enemyData.itemDropPath))

@@ -5,6 +5,19 @@ public class AttackButtonHandler : MonoBehaviour, IPointerDownHandler, IPointerU
 {
     [SerializeField] private WeaponSwitcher weaponSwitcher;
 
+    void Start()
+    {
+        // Re-find WeaponSwitcher in case the serialized reference was lost after scene reload
+        if (weaponSwitcher == null)
+        {
+            weaponSwitcher = FindObjectOfType<WeaponSwitcher>();
+            if (weaponSwitcher == null)
+            {
+                Debug.LogWarning($"{name}: WeaponSwitcher not found in scene.");
+            }
+        }
+    }
+
     public void OnPointerDown(PointerEventData eventData)
     {
         if (weaponSwitcher != null)

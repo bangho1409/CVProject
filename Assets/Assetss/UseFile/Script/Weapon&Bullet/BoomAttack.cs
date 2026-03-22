@@ -51,10 +51,6 @@ public class BoomAttack : MonoBehaviour
                 {
                     Debug.LogWarning($"BoomAttack: Could not load prefab at '{path}'.");
                 }
-
-                Debug.Log($"BoomAttack: Loaded Bomb data → Damage={bombData.damage}, " +
-                          $"Speed={bombData.speed}, Radius={bombData.radius}, " +
-                          $"Cooldown={bombData.cooldown}");
             }
             else
             {

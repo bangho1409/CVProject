@@ -1,4 +1,5 @@
-using UnityEngine;
+﻿using UnityEngine;
+using System.Collections;
 
 public class EnemyCrab : MonoBehaviour
 {
@@ -43,9 +44,15 @@ public class EnemyCrab : MonoBehaviour
     [SerializeField] private float pauseBeforeAttack = 0.3f;
     private float pauseEndTime;
 
+    // Wall avoidance (private, not serialized)
+    private const float WALL_CHECK_DISTANCE = 0.6f;
+    private ContactFilter2D wallFilter;
+
     private CrabState state = CrabState.MoveToPlayer;
     private bool playerInAttackZone = false;
     private float skillCooldownEndTime = -Mathf.Infinity;
+
+    public bool isDead { get; private set; }
 
     void Start()
     {
@@ -69,12 +76,18 @@ public class EnemyCrab : MonoBehaviour
         // Ensure attack hitbox starts disabled
         if (AttackHitbox != null)
             AttackHitbox.SetActive(false);
+
+        // Configure wall filter: solid colliders only, respect collision matrix
+        wallFilter = new ContactFilter2D();
+        wallFilter.useTriggers = false;
+        wallFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
+        wallFilter.useLayerMask = true;
     }
 
     void FixedUpdate()
     {
         if (playerTransform == null) return;
-        if (hp <= 0) return;
+        if (isDead || hp <= 0) return;
 
         RecoverStamina();
         HandleTouchDamage();
@@ -94,13 +107,41 @@ public class EnemyCrab : MonoBehaviour
     private void MoveToPlayer()
     {
         Vector2 dir = ((Vector2)playerTransform.position - rb.position).normalized;
-        rb.linearVelocity = dir * moveSpeed;
+        Vector2 desiredVelocity = dir * moveSpeed;
+
+        // Wall avoidance: cast in desired direction, if blocked → slide along wall
+        RaycastHit2D[] hits = new RaycastHit2D[1];
+        int hitCount = rb.Cast(dir, wallFilter, hits, WALL_CHECK_DISTANCE);
+
+        if (hitCount > 0 && hits[0].collider != null)
+        {
+            // Slide along the wall by removing the component going into the wall
+            Vector2 wallNormal = hits[0].normal;
+            desiredVelocity = desiredVelocity - Vector2.Dot(desiredVelocity, wallNormal) * wallNormal;
+
+            // If almost completely blocked (corner), try perpendicular directions
+            if (desiredVelocity.magnitude < moveSpeed * 0.1f)
+            {
+                Vector2 perp1 = new Vector2(-dir.y, dir.x);
+                Vector2 perp2 = new Vector2(dir.y, -dir.x);
+
+                // Pick the perpendicular direction closer to the player
+                Vector2 toPlayer = ((Vector2)playerTransform.position - rb.position);
+                desiredVelocity = Vector2.Dot(toPlayer, perp1) > 0
+                    ? perp1 * moveSpeed * 0.5f
+                    : perp2 * moveSpeed * 0.5f;
+            }
+        }
+
+        // Use MovePosition so physics engine handles collision properly
+        Vector2 newPos = rb.position + desiredVelocity * Time.fixedDeltaTime;
+        rb.MovePosition(newPos);
+
         animator.SetBool("isMoving", true);
 
         // If CrabAttackCensor detects Player and has enough stamina -> pause before attack
         if (playerInAttackZone && stamina >= skillStaminaCost)
         {
-            rb.linearVelocity = Vector2.zero;
             stamina -= skillStaminaCost;
             pauseEndTime = Time.time + pauseBeforeAttack;
             state = CrabState.Pause;
@@ -134,7 +175,7 @@ public class EnemyCrab : MonoBehaviour
         StartCoroutine(DisableHitboxAfterAnimation());
     }
 
-    private System.Collections.IEnumerator DisableHitboxAfterAnimation()
+    private IEnumerator DisableHitboxAfterAnimation()
     {
         // Wait one frame so animator updates to the "Attack" state
         yield return null;
@@ -236,8 +277,10 @@ public class EnemyCrab : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
+        if (isDead) return;
+
         hp -= damage;
-        //if (animator != null) animator.SetTrigger("getHit");
+        if (animator != null) animator.SetTrigger("getHit");
 
         if (hp <= 0)
             Die();
@@ -245,12 +288,33 @@ public class EnemyCrab : MonoBehaviour
 
     private void Die()
     {
-        //if (animator != null) animator.SetTrigger("death");
+        if (isDead) return;
+        isDead = true;
+
         if (rb != null) rb.linearVelocity = Vector2.zero;
 
-        var col = GetComponent<Collider2D>();
-        if (col != null) col.enabled = false;
-        
+        // Disable ALL colliders (root + children like CrabAttackCensor, aimPoint)
+        Collider2D[] allColliders = GetComponentsInChildren<Collider2D>();
+        foreach (var col in allColliders)
+        {
+            col.enabled = false;
+        }
+
+        // Change tag so auto-aim no longer targets this enemy
+        gameObject.tag = "Untagged";
+        foreach (Transform child in transform)
+        {
+            child.gameObject.tag = "Untagged";
+        }
+
+        // Change layer so OverlapCircle/layer checks skip this enemy
+        int defaultLayer = LayerMask.NameToLayer("Default");
+        gameObject.layer = defaultLayer;
+        foreach (Transform child in transform)
+        {
+            child.gameObject.layer = defaultLayer;
+        }
+
         if (animator != null) animator.SetBool("isDeath", true);
 
         // Spawn drop item
