@@ -3,11 +3,11 @@ using UnityEngine;
 public class HammerDamageCollider : MonoBehaviour
 {
     [HideInInspector] public float damage;
-
+    private int enemyLayer;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        
+        enemyLayer = LayerMask.NameToLayer("Enemy");
     }
 
     // Update is called once per frame
@@ -18,22 +18,28 @@ public class HammerDamageCollider : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (!collision.CompareTag("Enemy"))
+        if (collision.CompareTag("WallMap") || collision.gameObject.layer == LayerMask.NameToLayer("Map"))
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        // Check by tag OR by layer to handle enemies whose root is Untagged
+        if (!collision.CompareTag("Enemy") && collision.gameObject.layer != enemyLayer)
             return;
 
         // Try EnemyBat (or any enemy with TakeDamage method)
         EnemyBat enemy = collision.GetComponent<EnemyBat>();
+        EnemyCrab enemyCrab = collision.GetComponentInParent<EnemyCrab>();
+
         if (enemy != null)
         {
             enemy.TakeDamage(damage);
-            Debug.Log($"HammerDamageCollider: Hit {collision.name} for {damage} damage.");
         }
 
-        EnemyCrab enemyCrab = collision.GetComponent<EnemyCrab>();
         if (enemyCrab != null)
         {
             enemyCrab.TakeDamage(damage);
-            Debug.Log($"HammerDamageCollider: Hit {collision.name} for {damage} damage.");
         }
     }
 }
