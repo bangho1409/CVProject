@@ -9,14 +9,11 @@ public class BaseBulletDataManager : MonoBehaviour
 
     private Dictionary<int, BaseBulletData> baseBulletData = new Dictionary<int, BaseBulletData>();
 
-    // Awake is called when the script instance is being loaded
     void Awake()
     {
         if (Instance == null) { Instance = this; DontDestroyOnLoad(gameObject); }
         else { Destroy(gameObject); return; }
 
-        // Read CSV immediately in Awake so data is available
-        // before any other script's Start() calls GetBulletById()
         if (bulletCSV != null)
         {
             ReadCSV();
@@ -26,7 +23,7 @@ public class BaseBulletDataManager : MonoBehaviour
     void ReadCSV()
     {
         string[] lines = bulletCSV.text.Split('\n');
-        for (int i = 1; i < lines.Length; i++) // Bỏ qua tiêu đề
+        for (int i = 1; i < lines.Length; i++)
         {
             string[] row = lines[i].Split(',');
             if (row.Length <= 1) continue;
@@ -43,7 +40,6 @@ public class BaseBulletDataManager : MonoBehaviour
             data.fxPath = row[9].Trim();
             baseBulletData.Add(data.id, data);
         }
-        Debug.Log("DataManager: Đã tải xong " + baseBulletData.Count + " đạn.");
     }
 
     public BaseBulletData GetBulletById(int id)

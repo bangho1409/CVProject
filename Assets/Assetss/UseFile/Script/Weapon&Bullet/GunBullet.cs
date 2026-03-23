@@ -33,7 +33,5 @@ public class GunBullet : MonoBehaviour
         {
             enemyCrab.TakeDamage(damage);
         }
-
-        Destroy(gameObject);
     }
 }

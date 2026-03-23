@@ -28,21 +28,21 @@ public class SpawnPoint : MonoBehaviour
         // Stop all running spawn coroutines from the current wave
         StopAllCoroutines();
 
-        currentWaveId++;
-        StartWave(currentWaveId);
+        // Check if next wave exists before advancing
+        WaveData nextWave = WaveDataManager.Instance.GetWaveById(currentWaveId + 1);
+        if (nextWave != null)
+        {
+            currentWaveId++;
+            StartWave(currentWaveId);
+        }
+        // else: stay on current wave (max wave reached)
     }
 
     // Bắt đầu wave theo WaveID
     public void StartWave(int waveId)
     {
         currentWave = WaveDataManager.Instance.GetWaveById(waveId);
-        if (currentWave == null)
-        {
-            Debug.LogWarning("Không tìm thấy WaveID: " + waveId);
-            return;
-        }
-
-        Debug.Log("Bắt đầu Wave: " + currentWave.waveName + " (ID: " + waveId + ")");
+        if (currentWave == null) return;
 
         totalSpawned = 0;
         isInfiniteWave = currentWave.totalSpawn == -1;
@@ -80,11 +80,6 @@ public class SpawnPoint : MonoBehaviour
                 SpawnMonster(monsterId);
                 totalSpawned++;
 
-                if (totalSpawned >= totalExpected)
-                {
-                    Debug.Log("Wave hoàn thành! Tổng đã spawn: " + totalSpawned);
-                }
-
                 yield return new WaitForSeconds(interval);
             }
         }
@@ -93,11 +88,7 @@ public class SpawnPoint : MonoBehaviour
     void SpawnMonster(int id)
     {
         EnemyData enemyData = EnemiesDataManager.Instance.GetCharacterById(id);
-        if (enemyData == null)
-        {
-            Debug.LogWarning("Không tìm thấy EnemyData với ID: " + id);
-            return;
-        }
+        if (enemyData == null) return;
 
         // Chuẩn hóa PrefabPath cho Resources.Load:
         // - Bỏ prefix "Assets/.../Resources/" nếu có
@@ -120,10 +111,6 @@ public class SpawnPoint : MonoBehaviour
         {
             Vector3 spawnPos = transform.position + new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f));
             Instantiate(prefab, spawnPos, Quaternion.identity);
-        }
-        else
-        {
-            return;
         }
     }
 }

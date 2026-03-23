@@ -33,6 +33,11 @@ public class PlayerCharacter : MonoBehaviour
     // Invincible during dash
     public bool isInvincible { get; private set; }
 
+    public bool isMaxLevel { get; private set; }
+
+    // True when player reached max level AND collected enough experience
+    public bool isGameEnd { get; private set; }
+
     void Awake()
     {
         Instance = this;
@@ -47,6 +52,9 @@ public class PlayerCharacter : MonoBehaviour
             {
                 GetStat();
                 expGainPoint = 0f;
+
+                // Check if this is already the max level (no next id exists)
+                isMaxLevel = CharacterDataManager.Instance.GetCharacterById(id + 1) == null;
             }
             else
             {
@@ -62,7 +70,7 @@ public class PlayerCharacter : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (isDead) return;
+        if (isDead || isGameEnd) return;
 
         if (playerCharacterData != null)
         {
@@ -175,27 +183,59 @@ public class PlayerCharacter : MonoBehaviour
 
     public bool GainExperience(float amount)
     {
-        experiencePoints += amount;
-        CharacterData nextLevelData = CharacterDataManager.Instance.GetCharacterById(id + 1);
-        if (nextLevelData != null)
+        if (isGameEnd) return false;
+
+        // At max level — accumulate exp and check for game end
+        if (isMaxLevel)
         {
-            if (experiencePoints >= nextLevelData.experiencePoints)
+            expGainPoint += amount;
+            if (expGainPoint >= playerCharacterData.experiencePoints)
             {
-                playerCharacterData = nextLevelData;
-                GetStat();
-                LevelUpAllEnemies();
+                expGainPoint = playerCharacterData.experiencePoints;
+                EndGame();
                 return true;
             }
-            else
-            {
-                return false;
-
-            }
-        }
-        else
-        {
-            Debug.LogWarning($"{name}: No next level character data found for id {id + 1}.");
             return false;
+        }
+
+        experiencePoints += amount;
+        CharacterData nextLevelData = CharacterDataManager.Instance.GetCharacterById(id + 1);
+        if (nextLevelData != null && experiencePoints >= nextLevelData.experiencePoints)
+        {
+            playerCharacterData = nextLevelData;
+            GetStat();
+
+            // Check if the NEW level is the max
+            isMaxLevel = CharacterDataManager.Instance.GetCharacterById(id + 1) == null;
+
+            // Reset expGainPoint for max-level accumulation
+            if (isMaxLevel)
+            {
+                expGainPoint = 0f;
+            }
+
+            LevelUpAllEnemies();
+            return true;
+        }
+        return false;
+    }
+
+    private void EndGame()
+    {
+        isGameEnd = true;
+
+        // Disable movement controller
+        var controller = GetComponent<PlayerCharacterController>();
+        if (controller != null)
+        {
+            controller.enabled = false;
+        }
+
+        // Stop any remaining velocity
+        var rb = GetComponent<Rigidbody2D>();
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
         }
     }
 

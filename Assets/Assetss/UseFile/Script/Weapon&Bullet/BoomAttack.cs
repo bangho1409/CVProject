@@ -94,6 +94,14 @@ public class BoomAttack : MonoBehaviour
         if (!canAttack || isAttacking || bombData == null || bombPrefab == null)
             return;
 
+        // Check and consume stamina before attacking
+        PlayerCharacter player = PlayerCharacter.Instance;
+        if (player != null && bombData.staminaCost > 0)
+        {
+            if (player.stamina < bombData.staminaCost) return;
+            player.ConsumeStamina(bombData.staminaCost);
+        }
+
         isAttacking = true;
         canAttack = false;
 
