@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class WeaponSwitcher : MonoBehaviour
 {
@@ -19,6 +18,12 @@ public class WeaponSwitcher : MonoBehaviour
     /// <summary>
     /// Called by UI Button "Gun".
     /// </summary>
+
+    private void Start()
+    {
+        currentWeapon = ActiveWeapon.Gun; // Default to Gun on start
+    }
+
     public void OnSelectGun()
     {
         DeactivateAll();
@@ -45,66 +50,11 @@ public class WeaponSwitcher : MonoBehaviour
     }
 
     /// <summary>
-    /// Called by Player Input component via "attack" action (InputAction.CallbackContext).
-    /// Handles both press (started/performed) and release (canceled) for hold-to-fire.
-    /// </summary>
-    public void OnAttack(InputAction.CallbackContext context)
-    {
-        if (context.started || context.performed)
-        {
-            OnAttackButtonDown();
-        }
-        else if (context.canceled)
-        {
-            OnAttackButtonUp();
-        }
-    }
-
-    /// <summary>
-    /// Called by UI Button "X" → OnPointerDown (press/hold to shoot).
-    /// </summary>
-    public void OnAttackButtonDown()
-    {
-        switch (currentWeapon)
-        {
-            case ActiveWeapon.Gun:
-                if (gunAttack != null)
-                    gunAttack.OnAttackButtonDown();
-                break;
-
-            case ActiveWeapon.Rifle:
-                if (rifleAttack != null)
-                    rifleAttack.OnAttackButtonDown();
-                break;
-        }
-    }
-
-    /// <summary>
-    /// Called by UI Button "X" → OnPointerUp (release to stop shooting).
-    /// </summary>
-    public void OnAttackButtonUp()
-    {
-        switch (currentWeapon)
-        {
-            case ActiveWeapon.Gun:
-                if (gunAttack != null)
-                    gunAttack.OnAttackButtonUp();
-                break;
-
-            case ActiveWeapon.Rifle:
-                if (rifleAttack != null)
-                    rifleAttack.OnAttackButtonUp();
-                break;
-        }
-    }
-
-    /// <summary>
     /// Called by HammerAttack at the START of hammer swing.
     /// Remembers which weapon was active and disables it.
     /// </summary>
     public void DisableForHammer()
     {
-        // Remember which weapon to restore later
         weaponBeforeHammer = currentWeapon;
 
         switch (currentWeapon)

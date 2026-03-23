@@ -183,6 +183,7 @@ public class PlayerCharacter : MonoBehaviour
             {
                 playerCharacterData = nextLevelData;
                 GetStat();
+                LevelUpAllEnemies();
                 return true;
             }
             else
@@ -195,6 +196,37 @@ public class PlayerCharacter : MonoBehaviour
         {
             Debug.LogWarning($"{name}: No next level character data found for id {id + 1}.");
             return false;
+        }
+    }
+
+    private void LevelUpAllEnemies()
+    {
+        // Upgrade all Crabs
+        EnemyCrab[] crabs = FindObjectsByType<EnemyCrab>(FindObjectsSortMode.None);
+        foreach (var crab in crabs)
+        {
+            crab.LevelUp();
+        }
+
+        // Upgrade all Bats
+        EnemyBat[] bats = FindObjectsByType<EnemyBat>(FindObjectsSortMode.None);
+        foreach (var bat in bats)
+        {
+            bat.LevelUp();
+        }
+
+        // Notify all SpawnPoints so future spawns use the upgraded wave
+        SpawnPoint[] spawnPoints = FindObjectsByType<SpawnPoint>(FindObjectsSortMode.None);
+        foreach (var sp in spawnPoints)
+        {
+            sp.OnPlayerLevelUp();
+        }
+
+        // Upgrade all Gun/Rifle bullet data (id + 1)
+        GunAttack[] gunAttacks = FindObjectsByType<GunAttack>(FindObjectsSortMode.None);
+        foreach (var gun in gunAttacks)
+        {
+            gun.LevelUpBullet();
         }
     }
 

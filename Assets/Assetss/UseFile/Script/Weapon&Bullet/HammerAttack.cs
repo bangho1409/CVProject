@@ -152,8 +152,8 @@ public class HammerAttack : MonoBehaviour
         // Flip the collider's X scale based on facing direction
         // The prefab's collider shape (Offset X=1) is designed for left-facing.
         // When facing right, mirror it so the shape points correctly.
-        float scaleX = facingRight ? -hammerData.scaleX : hammerData.scaleX;
-        activeCollider.transform.localScale = new Vector3(scaleX, hammerData.scaleY, 1f);
+        float scaleX = facingRight ? -1f : 1f;
+        activeCollider.transform.localScale = new Vector3(scaleX, 1f, 1f);
 
         // Attach the damage component and set damage from CSV
         HammerDamageCollider damageComp = activeCollider.GetComponent<HammerDamageCollider>();

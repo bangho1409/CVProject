@@ -38,10 +38,9 @@ public class BaseBulletDataManager : MonoBehaviour
             data.radius = float.Parse(row[4], CultureInfo.InvariantCulture);
             data.cooldown = float.Parse(row[5], CultureInfo.InvariantCulture);
             data.delayTime = float.Parse(row[6], CultureInfo.InvariantCulture);
-            data.scaleX = float.Parse(row[7], CultureInfo.InvariantCulture);
-            data.scaleY = float.Parse(row[8], CultureInfo.InvariantCulture);
-            data.prefabPath = row[9].Trim();
-            data.fxPath = row[10].Trim();
+            data.staminaCost = float.Parse(row[7], CultureInfo.InvariantCulture);
+            data.prefabPath = row[8].Trim();
+            data.fxPath = row[9].Trim();
             baseBulletData.Add(data.id, data);
         }
         Debug.Log("DataManager: Đã tải xong " + baseBulletData.Count + " đạn.");
@@ -67,8 +66,7 @@ public class BaseBulletData
     public float radius;
     public float cooldown;
     public float delayTime;
-    public float scaleX;
-    public float scaleY;
+    public float staminaCost;
     public string prefabPath;
     public string fxPath;
 }

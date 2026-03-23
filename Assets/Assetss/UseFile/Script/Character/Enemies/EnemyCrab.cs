@@ -68,7 +68,7 @@ public class EnemyCrab : MonoBehaviour
 
         if (EnemiesDataManager.Instance != null)
         {
-            enemyData = EnemiesDataManager.Instance.GetCharacterById(200);
+            enemyData = EnemiesDataManager.Instance.GetCharacterById(100);
             if (enemyData != null)
                 LoadStats();
         }
@@ -275,6 +275,26 @@ public class EnemyCrab : MonoBehaviour
         playerInAttackZone = false;
     }
 
+    /// <summary>
+    /// Upgrade enemy stats by loading the next level data (id + 1) from CSV.
+    /// Called when the player levels up.
+    /// </summary>
+    public void LevelUp()
+    {
+        if (isDead) return;
+        if (EnemiesDataManager.Instance == null) return;
+
+        EnemyData nextData = EnemiesDataManager.Instance.GetCharacterById(enemyData.id + 1);
+        if (nextData != null)
+        {
+            enemyData = nextData;
+            LoadStats();
+            // Restore HP & stamina to new max values
+            hp = enemyData.hp;
+            stamina = enemyData.stamina;
+        }
+    }
+
     public void TakeDamage(float damage)
     {
         if (isDead) return;
@@ -317,12 +337,10 @@ public class EnemyCrab : MonoBehaviour
 
         if (animator != null) animator.SetBool("isDeath", true);
 
-        // Spawn drop item
-        if (enemyData != null && !string.IsNullOrEmpty(enemyData.itemDropPath))
+        // Roll drop items based on player level
+        if (ItemDropManager.Instance != null)
         {
-            GameObject dropPrefab = Resources.Load<GameObject>(enemyData.itemDropPath);
-            if (dropPrefab != null)
-                Instantiate(dropPrefab, transform.position, Quaternion.identity);
+            ItemDropManager.Instance.RollDrops(transform.position);
         }
 
         Destroy(gameObject, 1f);

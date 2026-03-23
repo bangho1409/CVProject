@@ -35,7 +35,6 @@ public class GunAttack : MonoBehaviour
 
     // Shooting state
     private bool isActive = false;
-    private bool holdingFireButton = false;
     private float cooldownTimer = 0f;
     private bool canShoot = true;
     private float delayTimer = 0f;
@@ -74,11 +73,6 @@ public class GunAttack : MonoBehaviour
                 {
                     Debug.LogWarning($"GunAttack ({weaponType}): Could not load prefab at '{path}'.");
                 }
-
-                Debug.Log($"GunAttack ({weaponType}): Loaded data → Damage={bulletData.damage}, " +
-                          $"Speed={bulletData.speed}, Cooldown={bulletData.cooldown}, " +
-                          $"DelayTime={bulletData.delayTime}, Radius={bulletData.radius}, " +
-                          $"Scale=({bulletData.scaleX},{bulletData.scaleY})");
             }
             else
             {
@@ -125,11 +119,20 @@ public class GunAttack : MonoBehaviour
             }
         }
 
-        // Hold fire
-        if (holdingFireButton && canShoot && !waitingForDelay)
+        // Find nearest enemy for auto-face and bullet direction
+        FindNearestEnemy();
+
+        // Auto-attack: shoot automatically when enemy is in range
+        if (nearestEnemy != null && canShoot && !waitingForDelay)
         {
             StartShot();
         }
+
+        // Auto-face player toward nearest enemy
+        AutoFaceNearestEnemy();
+
+        // Update facing AFTER auto-face
+        isFacingRight = playerSpriteRenderer != null && playerSpriteRenderer.flipX;
 
         // Muzzle flash timer
         if (muzzleFlash != null && muzzleFlashTimer > 0f)
@@ -140,15 +143,6 @@ public class GunAttack : MonoBehaviour
                 HideMuzzleFlash();
             }
         }
-
-        // Find nearest enemy for auto-face and bullet direction
-        FindNearestEnemy();
-
-        // Auto-face player toward nearest enemy
-        AutoFaceNearestEnemy();
-
-        // Update facing AFTER auto-face
-        isFacingRight = playerSpriteRenderer != null && playerSpriteRenderer.flipX;
     }
 
     void LateUpdate()
@@ -176,7 +170,6 @@ public class GunAttack : MonoBehaviour
     public void DeactivateWeapon()
     {
         isActive = false;
-        holdingFireButton = false;
         waitingForDelay = false;
         disabledByHammer = false;
 
@@ -198,7 +191,6 @@ public class GunAttack : MonoBehaviour
         if (!isActive) return;
 
         disabledByHammer = true;
-        holdingFireButton = false;
         waitingForDelay = false;
 
         if (weaponObject != null)
@@ -228,25 +220,43 @@ public class GunAttack : MonoBehaviour
         SetAnimatorWeaponState(true);
     }
 
-    public bool IsActive()
+    /// <summary>
+    /// Upgrade bullet stats by loading the next bullet data (id + 1) from CSV.
+    /// Called when the player levels up.
+    /// </summary>
+    public void LevelUpBullet()
     {
-        return isActive;
-    }
+        if (BaseBulletDataManager.Instance == null || bulletData == null) return;
 
-    public void OnAttackButtonDown()
-    {
-        if (!isActive || disabledByHammer) return;
-        holdingFireButton = true;
-
-        if (canShoot && !waitingForDelay)
+        BaseBulletData nextData = BaseBulletDataManager.Instance.GetBulletById(bulletData.id + 1);
+        if (nextData != null)
         {
-            StartShot();
+            bulletData = nextData;
+            bulletDataId = nextData.id;
+
+            // Reload prefab if the next level uses a different one
+            string path = bulletData.prefabPath.Replace(".prefab", "");
+            GameObject newPrefab = Resources.Load<GameObject>(path);
+            if (newPrefab != null)
+            {
+                bulletPrefab = newPrefab;
+            }
+            else
+            {
+                Debug.LogWarning($"GunAttack ({weaponType}): Could not load prefab at '{path}' for bullet id {bulletData.id}.");
+            }
+
+            Debug.Log($"GunAttack ({weaponType}): Bullet upgraded to {bulletData.bulletName} (ID: {bulletData.id})");
+        }
+        else
+        {
+            Debug.LogWarning($"GunAttack ({weaponType}): No next bullet data found for id {bulletData.id + 1}.");
         }
     }
 
-    public void OnAttackButtonUp()
+    public bool IsActive()
     {
-        holdingFireButton = false;
+        return isActive;
     }
 
     // ─── PRIVATE HELPERS ────────────────────────────────────────
@@ -284,11 +294,17 @@ public class GunAttack : MonoBehaviour
     {
         if (bulletData == null || !canShoot) return;
 
+        // Check if player has enough stamina
+        PlayerCharacter player = PlayerCharacter.Instance;
+        if (player != null && bulletData.staminaCost > 0)
+        {
+            if (player.stamina < bulletData.staminaCost) return;
+            player.ConsumeStamina(bulletData.staminaCost);
+        }
+
         canShoot = false;
         waitingForDelay = true;
         delayTimer = bulletData.delayTime;
-        // NOTE: cooldownTimer is NOT set here anymore.
-        // It will be set in Update() after FireBullet() completes.
     }
 
     private void FireBullet()
@@ -301,7 +317,7 @@ public class GunAttack : MonoBehaviour
 
         GameObject bulletObj = Instantiate(bulletPrefab, shootingPoint.position, Quaternion.identity);
 
-        bulletObj.transform.localScale = new Vector3(bulletData.scaleX, bulletData.scaleY, 1f);
+        bulletObj.transform.localScale = new Vector3(1f, 1f, 1f);
 
         float angle = Mathf.Atan2(shootDirection.y, shootDirection.x) * Mathf.Rad2Deg;
         bulletObj.transform.rotation = Quaternion.Euler(0f, 0f, angle);

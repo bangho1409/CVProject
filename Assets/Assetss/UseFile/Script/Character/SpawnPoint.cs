@@ -8,13 +8,28 @@ public class SpawnPoint : MonoBehaviour
     public int startWaveId = 100; // WaveID đầu tiên
 
     private WaveData currentWave;
+    private int currentWaveId;
     private int totalSpawned = 0;
     private int totalExpected = 0;
     private bool isInfiniteWave = false;
 
     void Start()
     {
-        StartWave(startWaveId);
+        currentWaveId = startWaveId;
+        StartWave(currentWaveId);
+    }
+
+    /// <summary>
+    /// Called when the player levels up.
+    /// Stops the current wave and starts the next wave (waveId + 1).
+    /// </summary>
+    public void OnPlayerLevelUp()
+    {
+        // Stop all running spawn coroutines from the current wave
+        StopAllCoroutines();
+
+        currentWaveId++;
+        StartWave(currentWaveId);
     }
 
     // Bắt đầu wave theo WaveID
@@ -27,7 +42,7 @@ public class SpawnPoint : MonoBehaviour
             return;
         }
 
-        Debug.Log("Bắt đầu Wave: " + currentWave.waveName);
+        Debug.Log("Bắt đầu Wave: " + currentWave.waveName + " (ID: " + waveId + ")");
 
         totalSpawned = 0;
         isInfiniteWave = currentWave.totalSpawn == -1;
@@ -105,11 +120,10 @@ public class SpawnPoint : MonoBehaviour
         {
             Vector3 spawnPos = transform.position + new Vector3(Random.Range(-1f, 1f), 0, Random.Range(-1f, 1f));
             Instantiate(prefab, spawnPos, Quaternion.identity);
-            Debug.Log("Spawned: " + enemyData.name + " (ID: " + id + ")");
         }
         else
         {
-            Debug.LogWarning("Không tìm thấy Prefab tại: " + path + " (gốc: " + enemyData.PrefabPath + ")");
+            return;
         }
     }
 }
