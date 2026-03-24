@@ -99,7 +99,7 @@ public class HammerAttack : MonoBehaviour
         colliderSpawned = false;
 
         // Calculate total attack duration
-        float baseDuration = hammerData.delayTime + 0.3f;
+        float baseDuration = hammerData.delayTime + 0.6f;
         float attackDuration = baseDuration / Mathf.Max(hammerData.speed, 0.1f);
 
         // Temporarily disable gun/rifle (no timer — HammerAttack controls re-enable)

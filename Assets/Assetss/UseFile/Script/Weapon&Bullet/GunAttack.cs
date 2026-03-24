@@ -38,7 +38,7 @@ public class GunAttack : MonoBehaviour
     [Header("Bullet Data")]
     [SerializeField] private int bulletDataId = 200;
 
-    void Start()
+    void Awake()
     {
         if (BaseBulletDataManager.Instance != null)
         {
@@ -56,6 +56,22 @@ public class GunAttack : MonoBehaviour
         if (weaponObject != null)
         {
             weaponObject.SetActive(false);
+        }
+    }
+
+    void Start()
+    {
+        if (BaseBulletDataManager.Instance != null)
+        {
+            bulletData = BaseBulletDataManager.Instance.GetBulletById(bulletDataId);
+            if (bulletData != null)
+            {
+                string path = bulletData.prefabPath.Replace(".prefab", "");
+                bulletPrefab = Resources.Load<GameObject>(path);
+
+                // Check if this is already the max bullet level
+                isMaxBulletLevel = BaseBulletDataManager.Instance.GetBulletById(bulletDataId + 1) == null;
+            }
         }
     }
 
@@ -200,6 +216,11 @@ public class GunAttack : MonoBehaviour
     public bool IsActive()
     {
         return isActive;
+    }
+
+    public GameObject GetWeaponObject()
+    {
+        return weaponObject;
     }
 
     // ─── PRIVATE HELPERS ────────────────────────────────────────

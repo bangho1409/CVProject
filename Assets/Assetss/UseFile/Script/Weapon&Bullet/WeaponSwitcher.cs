@@ -15,15 +15,16 @@ public class WeaponSwitcher : MonoBehaviour
     // Track which weapon was active before hammer interrupted
     private ActiveWeapon weaponBeforeHammer = ActiveWeapon.None;
 
+    void Start()
+    {
+        // Deactivate all first, then activate default weapon
+        DeactivateAll();
+        OnSelectGun();
+    }
+
     /// <summary>
     /// Called by UI Button "Gun".
     /// </summary>
-
-    private void Start()
-    {
-        currentWeapon = ActiveWeapon.Gun; // Default to Gun on start
-    }
-
     public void OnSelectGun()
     {
         DeactivateAll();
