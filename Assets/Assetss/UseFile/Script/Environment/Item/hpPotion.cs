@@ -8,6 +8,9 @@ public class hpPotion : MonoBehaviour
     public string itemName;
     public float amount;
 
+    private float destroyDelay = 360f;
+    private float timer;
+
     private void Start()
     {
         itemData = ItemDataManager.Instance.GetItemById(id);
@@ -15,6 +18,16 @@ public class hpPotion : MonoBehaviour
         {
             itemName = itemData.itemName;
             amount = itemData.amount;
+        }
+        timer = destroyDelay;
+    }
+
+    private void Update()
+    {
+        timer -= Time.deltaTime;
+        if (timer <= 0f)
+        {
+            Destroy(gameObject);
         }
     }
 

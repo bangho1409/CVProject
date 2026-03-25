@@ -1,38 +1,55 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class SpawnTrigger : MonoBehaviour
 {
     private SpawnPoint[] spawnPoints;
+    [SerializeField] private int limitEnemies = 200;
+
+    private bool isPaused = false;
 
     void Awake()
     {
-        // Get all SpawnPoint components from children
         spawnPoints = GetComponentsInChildren<SpawnPoint>(true);
+    }
 
-        // Disable all spawn points at start so they don't auto-run
-        foreach (var sp in spawnPoints)
+    void Update()
+    {
+        int currentEnemies = GetAliveEnemyCount();
+
+        if (!isPaused && currentEnemies >= limitEnemies)
         {
-            sp.enabled = false;
+            isPaused = true;
+            foreach (var sp in spawnPoints)
+            {
+                sp.PauseSpawning();
+            }
+        }
+        else if (isPaused && currentEnemies < limitEnemies)
+        {
+            isPaused = false;
+            foreach (var sp in spawnPoints)
+            {
+                sp.ResumeSpawning();
+            }
         }
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
+    private int GetAliveEnemyCount()
     {
-        if (!collision.CompareTag("Player")) return;
+        int count = 0;
 
-        foreach (var sp in spawnPoints)
+        EnemyBat[] bats = FindObjectsByType<EnemyBat>(FindObjectsSortMode.None);
+        foreach (var bat in bats)
         {
-            sp.enabled = true;
+            if (!bat.isDead) count++;
         }
-    }
 
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        if (!collision.CompareTag("Player")) return;
-
-        foreach (var sp in spawnPoints)
+        EnemyCrab[] crabs = FindObjectsByType<EnemyCrab>(FindObjectsSortMode.None);
+        foreach (var crab in crabs)
         {
-            sp.enabled = false;
+            if (!crab.isDead) count++;
         }
+
+        return count;
     }
 }

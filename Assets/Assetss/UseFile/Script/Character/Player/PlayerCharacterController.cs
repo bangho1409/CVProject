@@ -18,9 +18,7 @@ public class PlayerCharacterController : MonoBehaviour
     private float dashTime;
     private Vector2 dashDirection;
 
-    // Smoothing & post-dash deceleration
-    [SerializeField] private float movementSmoothing = 0.08f;        // smaller = snappier
-    [SerializeField] private float dashRecoveryDuration = 0.35f;    // time to fade from dash speed -> normal
+    [SerializeField] private float dashRecoveryDuration = 0.35f;
     private Vector2 currentVelocity = Vector2.zero;
 
     private bool isDecelerating = false;
@@ -28,7 +26,6 @@ public class PlayerCharacterController : MonoBehaviour
     private Vector2 decelDirection;
     private float decelStartSpeed;
 
-    // Contact filter for dash collision — configured once in Start
     private ContactFilter2D dashContactFilter;
 
     void Start()
@@ -42,7 +39,6 @@ public class PlayerCharacterController : MonoBehaviour
             animator = GetComponent<Animator>();
         }
 
-        // Configure contact filter to only detect solid colliders (not triggers)
         dashContactFilter = new ContactFilter2D();
         dashContactFilter.useTriggers = false;
         dashContactFilter.SetLayerMask(Physics2D.GetLayerCollisionMask(gameObject.layer));
@@ -141,8 +137,6 @@ public class PlayerCharacterController : MonoBehaviour
         bool isRunning = runButtonPressed && playerCharacter.stamina > playerCharacter.runStaminaCostPerSecond;
         float baseSpeed = isRunning ? playerCharacter.runSpeed : playerCharacter.moveSpeed;
 
-        // Handle deceleration phase after dash
-        Vector2 desiredVelocity;
         if (isDecelerating)
         {
             decelTimer -= Time.fixedDeltaTime;
@@ -152,7 +146,7 @@ public class PlayerCharacterController : MonoBehaviour
 
             Vector2 inputVel = movement * baseSpeed;
 
-            desiredVelocity = Vector2.Lerp(inputVel, decelVel, t);
+            currentVelocity = Vector2.Lerp(inputVel, decelVel, t);
 
             if (decelTimer <= 0f)
             {
@@ -161,22 +155,12 @@ public class PlayerCharacterController : MonoBehaviour
         }
         else
         {
-            desiredVelocity = movement * baseSpeed;
+            currentVelocity = movement * baseSpeed;
         }
 
         // Use MovePosition instead of setting velocity directly.
         // This lets the physics engine handle collision resolution properly
         // and prevents the player from being "pushed" through walls.
-        float smoothTime = movementSmoothing;
-        currentVelocity = Vector2.SmoothDamp(currentVelocity, desiredVelocity, ref currentVelocity, smoothTime, Mathf.Infinity, Time.fixedDeltaTime);
-
-        // Clamp to prevent overshooting on low-FPS devices
-        float maxAllowedSpeed = isDecelerating ? playerCharacter.dashSpeed : baseSpeed;
-        if (currentVelocity.magnitude > maxAllowedSpeed)
-        {
-            currentVelocity = currentVelocity.normalized * maxAllowedSpeed;
-        }
-
         Vector2 newPos = rb.position + currentVelocity * Time.fixedDeltaTime;
         rb.MovePosition(newPos);
 

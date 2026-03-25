@@ -184,19 +184,7 @@ public class PlayerCharacter : MonoBehaviour
     public bool GainExperience(float amount)
     {
         if (isGameEnd) return false;
-
-        // At max level — accumulate exp and check for game end
-        if (isMaxLevel)
-        {
-            expGainPoint += amount;
-            if (expGainPoint >= playerCharacterData.experiencePoints)
-            {
-                expGainPoint = playerCharacterData.experiencePoints;
-                EndGame();
-                return true;
-            }
-            return false;
-        }
+        if (isMaxLevel) return false;
 
         experiencePoints += amount;
         CharacterData nextLevelData = CharacterDataManager.Instance.GetCharacterById(id + 1);
@@ -208,13 +196,14 @@ public class PlayerCharacter : MonoBehaviour
             // Check if the NEW level is the max
             isMaxLevel = CharacterDataManager.Instance.GetCharacterById(id + 1) == null;
 
-            // Reset expGainPoint for max-level accumulation
+            LevelUpAllEnemies();
+
+            // Đạt max level → kết thúc game ngay
             if (isMaxLevel)
             {
-                expGainPoint = 0f;
+                EndGame();
             }
 
-            LevelUpAllEnemies();
             return true;
         }
         return false;

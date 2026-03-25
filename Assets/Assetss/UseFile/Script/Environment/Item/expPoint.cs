@@ -4,9 +4,12 @@ public class expPoint : MonoBehaviour
 {
     private ItemData itemData;
 
-    public int id = 300;
-    public string itemName;
-    public float amount;
+    [HideInInspector] public int id = 300;
+    [HideInInspector] public string itemName;
+    [HideInInspector] public float amount;
+
+    private float destroyDelay = 240f;
+    private float timer;
 
     private void Start()
     {
@@ -15,6 +18,16 @@ public class expPoint : MonoBehaviour
         {
             itemName = itemData.itemName;
             amount = itemData.amount;
+        }
+        timer = destroyDelay;
+    }
+
+    private void Update()
+    {
+        timer -= Time.deltaTime;
+        if (timer <= 0f)
+        {
+            Destroy(gameObject);
         }
     }
 

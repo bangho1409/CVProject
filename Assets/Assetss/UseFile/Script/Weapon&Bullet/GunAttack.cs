@@ -25,6 +25,7 @@ public class GunAttack : MonoBehaviour
     private bool canShoot = true;
     private float delayTimer = 0f;
     private bool waitingForDelay = false;
+    private bool isShooting = false;
 
     private bool disabledByHammer = false;
 
@@ -85,6 +86,7 @@ public class GunAttack : MonoBehaviour
             if (cooldownTimer <= 0f)
             {
                 canShoot = true;
+                isShooting = false;
             }
         }
 
@@ -96,12 +98,13 @@ public class GunAttack : MonoBehaviour
                 waitingForDelay = false;
                 FireBullet();
                 cooldownTimer = bulletData.cooldown;
+                canShoot = false;
             }
         }
 
         FindNearestEnemy();
 
-        if (nearestEnemy != null && canShoot && !waitingForDelay)
+        if (nearestEnemy != null && canShoot && !waitingForDelay && !isShooting)
         {
             StartShot();
         }
@@ -144,6 +147,7 @@ public class GunAttack : MonoBehaviour
     {
         isActive = false;
         waitingForDelay = false;
+        isShooting = false;
         disabledByHammer = false;
 
         if (weaponObject != null)
@@ -161,6 +165,7 @@ public class GunAttack : MonoBehaviour
 
         disabledByHammer = true;
         waitingForDelay = false;
+        isShooting = false;
 
         if (weaponObject != null)
         {
@@ -266,6 +271,7 @@ public class GunAttack : MonoBehaviour
         }
 
         canShoot = false;
+        isShooting = true;
         waitingForDelay = true;
         delayTimer = bulletData.delayTime;
     }
@@ -279,7 +285,10 @@ public class GunAttack : MonoBehaviour
         Vector2 shootDirection = GetShootDirection();
 
         GameObject bulletObj = Instantiate(bulletPrefab, shootingPoint.position, Quaternion.identity);
-        bulletObj.transform.localScale = new Vector3(1f, 1f, 1f);
+
+        // Apply radius from CSV as localScale
+        float scale = bulletData.radius;
+        bulletObj.transform.localScale = new Vector3(scale, scale, scale);
 
         float angle = Mathf.Atan2(shootDirection.y, shootDirection.x) * Mathf.Rad2Deg;
         bulletObj.transform.rotation = Quaternion.Euler(0f, 0f, angle);

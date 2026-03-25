@@ -8,10 +8,11 @@ public class SpawnPoint : MonoBehaviour
     public int startWaveId = 100; // WaveID đầu tiên
 
     private WaveData currentWave;
-    private int currentWaveId;
+    public int currentWaveId { get; private set; }
     private int totalSpawned = 0;
     private int totalExpected = 0;
     private bool isInfiniteWave = false;
+    private bool isSpawning = false;
 
     void Start()
     {
@@ -22,31 +23,41 @@ public class SpawnPoint : MonoBehaviour
     /// <summary>
     /// Called when the player levels up.
     /// Stops the current wave and starts the next wave (waveId + 1).
+    /// If no next wave exists, restarts the current wave.
     /// </summary>
     public void OnPlayerLevelUp()
     {
-        // Stop all running spawn coroutines from the current wave
         StopAllCoroutines();
+        isSpawning = false;
 
-        // Check if next wave exists before advancing
         WaveData nextWave = WaveDataManager.Instance.GetWaveById(currentWaveId + 1);
         if (nextWave != null)
         {
             currentWaveId++;
             StartWave(currentWaveId);
         }
-        // else: stay on current wave (max wave reached)
     }
 
     // Bắt đầu wave theo WaveID
     public void StartWave(int waveId)
     {
+        if (!gameObject.activeInHierarchy) return;
+
+        if (isSpawning)
+        {
+            StopAllCoroutines();
+            isSpawning = false;
+        }
+
         currentWave = WaveDataManager.Instance.GetWaveById(waveId);
         if (currentWave == null) return;
 
+        currentWaveId = waveId;
         totalSpawned = 0;
         isInfiniteWave = currentWave.totalSpawn == -1;
         totalExpected = isInfiniteWave ? -1 : currentWave.monsterIds.Count * currentWave.totalSpawn;
+
+        isSpawning = true;
 
         // Mỗi loại monster chạy coroutine spawn riêng (đồng thời)
         for (int i = 0; i < currentWave.monsterIds.Count; i++)
@@ -61,8 +72,32 @@ public class SpawnPoint : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Dừng spawn, được gọi từ SpawnTrigger.
+    /// </summary>
+    public void PauseSpawning()
+    {
+        StopAllCoroutines();
+        isSpawning = false;
+    }
+
+    /// <summary>
+    /// Tiếp tục spawn wave hiện tại, được gọi từ SpawnTrigger.
+    /// </summary>
+    public void ResumeSpawning()
+    {
+        if (!gameObject.activeInHierarchy) return;
+        if (isSpawning) return;
+
+        StartWave(currentWaveId);
+    }
+
     IEnumerator SpawnMonsterRoutine(int monsterId, int count, float interval)
     {
+        // Chờ 1 interval trước khi spawn con đầu tiên,
+        // tránh spawn ngay lập tức trong cùng frame
+        yield return new WaitForSeconds(interval);
+
         // count == -1 means infinite spawning
         if (count == -1)
         {
@@ -80,9 +115,14 @@ public class SpawnPoint : MonoBehaviour
                 SpawnMonster(monsterId);
                 totalSpawned++;
 
-                yield return new WaitForSeconds(interval);
+                if (i < count - 1)
+                {
+                    yield return new WaitForSeconds(interval);
+                }
             }
         }
+
+        isSpawning = false;
     }
 
     void SpawnMonster(int id)
