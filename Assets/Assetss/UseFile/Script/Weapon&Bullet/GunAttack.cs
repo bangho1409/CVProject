@@ -39,6 +39,15 @@ public class GunAttack : MonoBehaviour
     [Header("Bullet Data")]
     [SerializeField] private int bulletDataId = 200;
 
+    /// <summary>
+    /// Returns true when the gun is active and currently aiming/shooting at an enemy.
+    /// Used by PlayerCharacterController to prevent movement-based facing override.
+    /// </summary>
+    public bool IsAimingAtEnemy
+    {
+        get { return isActive && !disabledByHammer && nearestEnemy != null; }
+    }
+
     void Awake()
     {
         if (BaseBulletDataManager.Instance != null)

@@ -28,11 +28,14 @@ public class PlayerCharacterController : MonoBehaviour
 
     private ContactFilter2D dashContactFilter;
 
+    private GunAttack gunAttack;
+
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
         spriteRenderer = GetComponent<SpriteRenderer>();
         playerCharacter = GetComponent<PlayerCharacter>();
+        gunAttack = GetComponentInChildren<GunAttack>();
 
         if (animator == null)
         {
@@ -52,16 +55,21 @@ public class PlayerCharacterController : MonoBehaviour
             return;
         }
 
-        // Facing
+        // Facing — skip when gun is aiming at an enemy so GunAttack controls the direction
         if (!isDashing)
         {
-            if (movement.x < 0)
+            bool gunIsAiming = gunAttack != null && gunAttack.IsAimingAtEnemy;
+
+            if (!gunIsAiming)
             {
-                spriteRenderer.flipX = false; // Face left
-            }
-            else if (movement.x > 0)
-            {
-                spriteRenderer.flipX = true; // Face right
+                if (movement.x < 0)
+                {
+                    spriteRenderer.flipX = false; // Face left
+                }
+                else if (movement.x > 0)
+                {
+                    spriteRenderer.flipX = true; // Face right
+                }
             }
 
             if ((Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) || dashButtonTriggered)
